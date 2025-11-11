@@ -26,4 +26,14 @@ vim.keymap.set('v', '<A-k>', ":m '<-2<CR>gv==gv", { silent = true })
 -- vim.keymap.set('n', 'gh', 'g0', { noremap = true, silent = true })
 -- vim.keymap.set('v', 'gh', 'g0', { noremap = true, silent = true })
 
-vim.keymap.set('n', 'grD', ":belowright split | lua require('telescope.builtin').lsp_definitions()<CR>", { desc = '[G]oto [D]efinition' })
+-- A fancy doc version which allows us to split downwards to the right.
+vim.keymap.set('n', 'grD', ":belowright split | lua require('telescope.builtin').lsp_definitions()<CR>", { desc = '[G]oto [D]efinition below window' })
+
+-- selection of current line, upwards and downwards
+vim.keymap.set('n', 'x', 'V', { noremap = true })
+vim.keymap.set('v', 'x', 'j', { noremap = true })
+vim.keymap.set('v', '<S-x>', 'k', { noremap = true })
+
+-- Go to end of line
+vim.keymap.set('n', 'gl', 'g$')
+vim.keymap.set('n', 'gh', 'g0')

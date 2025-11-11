@@ -7,7 +7,7 @@ return {
     'lewis6991/gitsigns.nvim',
     opts = {
       signs = vim.g.have_nerd_font and {} or {
-        add = { text = '+' },
+        add = { text = '1' },
         change = { text = '~' },
         delete = { text = '_' },
         topdelete = { text = '‾' },

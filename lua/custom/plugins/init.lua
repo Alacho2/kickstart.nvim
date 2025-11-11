@@ -18,6 +18,14 @@ vim.api.nvim_create_autocmd('WinEnter', {
   end,
 })
 
+-- Resize splits automatically
+vim.api.nvim_create_autocmd('VimResized', {
+  pattern = '*',
+  callback = function()
+    vim.cmd 'tabdo wincmd ='
+  end,
+})
+
 -- Set formatting for lua, because tabs really suck
 vim.api.nvim_create_autocmd('FileType', {
   pattern = '*',

@@ -37,3 +37,5 @@ vim.keymap.set('v', '<S-x>', 'k', { noremap = true })
 -- Go to end of line
 vim.keymap.set('n', 'gl', 'g$')
 vim.keymap.set('n', 'gh', 'g0')
+
+-- recent picker

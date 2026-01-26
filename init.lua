@@ -481,6 +481,7 @@ require('lazy').setup({
       },
     },
   },
+  { 'Hoffs/omnisharp-extended-lsp.nvim' },
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
@@ -530,12 +531,16 @@ require('lazy').setup({
       --    function will be executed to configure the current buffer
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
+        -- WARN(Haavard): This is not the function you are looking for, lsp-config.lua
         callback = function(event)
+          local client = vim.lsp.get_client_by_id(event.data.client_id)
+
           -- NOTE: Remember that Lua is a real programming language, and as such it is possible
           -- to define small helper and utility functions so you don't have to repeat yourself.
           --
           -- In this case, we create a function that lets us more easily define mappings specific
           -- for LSP related items. It sets the mode, buffer and description for us each time.
+
           local map = function(keys, func, desc, mode)
             mode = mode or 'n'
             vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
@@ -559,7 +564,11 @@ require('lazy').setup({
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          if client and client.name == 'omnisharp' then
+            map('grd', require('omnisharp_extended').lsp_definitions, '[G]oto [D]efinitionn')
+          else
+            map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinitionnnn')
+          end
 
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
@@ -596,7 +605,6 @@ require('lazy').setup({
           --    See `:help CursorHold` for information about when this is executed
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
-          local client = vim.lsp.get_client_by_id(event.data.client_id)
           if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
@@ -684,6 +692,50 @@ require('lazy').setup({
         -- pyright = {},
         kotlin_lsp = {},
         postgres_lsp = {},
+        omnisharp = {
+          -- 1. HANDLERS: This enables "Go to Definition" for decompiled code (like Console.WriteLine)
+          -- Requires you to have installed 'Hoffs/omnisharp-extended-lsp.nvim'
+          handlers = {
+            ['textDocument/definition'] = require('omnisharp_extended').handler,
+            ['textDocument/typeDefinition'] = require('omnisharp_extended').type_definition_handler,
+            ['textDocument/references'] = require('omnisharp_extended').references_handler,
+            ['textDocument/implementation'] = require('omnisharp_extended').implementation_handler,
+          },
+
+          -- 2. COMMAND: Only uncomment this if you are on Linux/Mac and having trouble starting the server.
+          -- cmd = { "dotnet", vim.fn.stdpath "data" .. "/mason/packages/omnisharp/libexec/OmniSharp.dll" },
+
+          -- 3. SETTINGS: Controls how the server analyzes your code
+          settings = {
+            FormattingOptions = {
+              -- Enables support for reading code style, naming convention and analyzer
+              -- settings from .editorconfig.
+              EnableEditorConfigSupport = true,
+              OrganizeImports = true,
+            },
+            MsBuild = {
+              -- If true, MSBuild project system will only load projects for files that
+              -- were opened in the editor. This setting is useful for big C# codebases
+              -- and allows for faster initialization of code navigation features only
+              -- for projects that are relevant to code that is being edited. With this
+              -- setting enabled OmniSharp may load fewer projects and may thus display
+              -- incomplete reference lists for symbols.
+              LoadProjectsOnDemand = false,
+            },
+            RoslynExtensionsOptions = {
+              -- Enables support for roslyn analyzers, code fixes and rulesets.
+              EnableAnalyzersSupport = true,
+              EnableImportCompletion = true,
+              AnalyzeOpenDocumentsOnly = false,
+              enableDecompilationSupport = true, -- Key for decompiling DLLs
+            },
+            Sdk = {
+              -- Specifies whether to include preview versions of the .NET SDK when
+              -- determining which version to use for project loading.
+              IncludePrereleases = true,
+            },
+          },
+        },
         jdtls = {},
         rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs

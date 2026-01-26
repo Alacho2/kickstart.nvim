@@ -48,6 +48,7 @@ return {
     vim.api.nvim_create_autocmd('LspAttach', {
       group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
       callback = function(event)
+        local client = vim.lsp.get_client_by_id(event.data.client_id)
         -- NOTE: Remember that Lua is a real programming language, and as such it is possible
         -- to define small helper and utility functions so you don't have to repeat yourself.
         --
@@ -76,7 +77,11 @@ return {
         -- Jump to the definition of the word under your cursor.
         --  This is where a variable was first declared, or where a function is defined, etc.
         --  To jump back, press <C-t>.
-        map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+        if client and client.name == 'omnisharp' then
+          map('grd', require('omnisharp_extended').lsp_definitions, '[G]oto [D]efinition')
+        else
+          map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+        end
 
         -- WARN: This is not Goto Definition, this is Goto Declaration.
         --  For example, in C this would take you to the header.
@@ -113,7 +118,6 @@ return {
         --    See `:help CursorHold` for information about when this is executed
         --
         -- When you move your cursor, the highlights will be cleared (the second autocommand).
-        local client = vim.lsp.get_client_by_id(event.data.client_id)
         if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
           local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
           vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
@@ -200,6 +204,16 @@ return {
       -- gopls = {},
       -- pyright = {},
       ts_ls = {},
+      omnisharp = {
+        -- 1. HANDLERS: This enables "Go to Definition" for decompiled code (like Console.WriteLine)
+        -- Requires you to have installed 'Hoffs/omnisharp-extended-lsp.nvim'
+        handlers = {
+          ['textDocument/definition'] = require('omnisharp_extended').handler,
+          ['textDocument/typeDefinition'] = require('omnisharp_extended').type_definition_handler,
+          ['textDocument/references'] = require('omnisharp_extended').references_handler,
+          ['textDocument/implementation'] = require('omnisharp_extended').implementation_handler,
+        },
+      },
       kotlin_lsp = {},
       rust_analyzer = {},
       eslint = {},

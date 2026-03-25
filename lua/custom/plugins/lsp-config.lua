@@ -5,7 +5,15 @@ return {
     -- Automatically install LSPs and related tools to stdpath for Neovim
     -- Mason must be loaded before its dependents so we need to set it up here.
     -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
-    { 'mason-org/mason.nvim', opts = {} },
+    {
+      'mason-org/mason.nvim',
+      opts = {
+        registries = {
+          'github:mason-org/mason-registry',
+          'github:crashdummyy/mason-registry',
+        },
+      },
+    },
     'mason-org/mason-lspconfig.nvim',
     'WhoIsSethDaniel/mason-tool-installer.nvim',
 
@@ -77,11 +85,11 @@ return {
         -- Jump to the definition of the word under your cursor.
         --  This is where a variable was first declared, or where a function is defined, etc.
         --  To jump back, press <C-t>.
-        if client and client.name == 'omnisharp' then
-          map('grd', require('omnisharp_extended').lsp_definitions, '[G]oto [D]efinition')
-        else
-          map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-        end
+        -- if client and client.name == 'omnisharp' then
+        --   map('grd', require('omnisharp_extended').lsp_definitions, '[G]oto [D]efinition')
+        -- else
+        map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+        -- end
 
         -- WARN: This is not Goto Definition, this is Goto Declaration.
         --  For example, in C this would take you to the header.
@@ -204,16 +212,6 @@ return {
       -- gopls = {},
       -- pyright = {},
       ts_ls = {},
-      omnisharp = {
-        -- 1. HANDLERS: This enables "Go to Definition" for decompiled code (like Console.WriteLine)
-        -- Requires you to have installed 'Hoffs/omnisharp-extended-lsp.nvim'
-        handlers = {
-          ['textDocument/definition'] = require('omnisharp_extended').handler,
-          ['textDocument/typeDefinition'] = require('omnisharp_extended').type_definition_handler,
-          ['textDocument/references'] = require('omnisharp_extended').references_handler,
-          ['textDocument/implementation'] = require('omnisharp_extended').implementation_handler,
-        },
-      },
       kotlin_lsp = {},
       rust_analyzer = {},
       eslint = {},
@@ -273,6 +271,9 @@ return {
           -- certain features of an LSP (for example, turning off formatting for ts_ls)
           server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
           require('lspconfig')[server_name].setup(server)
+        end,
+        jdtls = function()
+          return true
         end,
       },
     }

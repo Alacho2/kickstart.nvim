@@ -13,6 +13,9 @@ return { -- You can easily change to a different colorscheme.
       flavour = 'macchiato',
       custom_highlights = function(colors)
         return {
+          Comment = {
+            fg = '#ABB2C9',
+          },
           LineNr = {
             fg = '#8C92AB',
           },

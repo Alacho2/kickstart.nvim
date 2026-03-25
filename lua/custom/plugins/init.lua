@@ -31,22 +31,32 @@ vim.api.nvim_create_autocmd('FileType', {
   pattern = '*',
   callback = function()
     vim.bo.expandtab = true
-    vim.bo.shiftwidth = 2
-    vim.bo.tabstop = 2
-    vim.bo.softtabstop = 2
+    vim.bo.shiftwidth = 4
+    vim.bo.tabstop = 4
+    vim.bo.softtabstop = 4
   end,
 })
-
-vim.api.nvim_create_autocmd('FileType', {
-  pattern = 'kotlin',
-  group = vim.api.nvim_create_augroup('CustomKotlinFormat', { clear = true }),
-  callback = function()
-    vim.bo.expandtab = true
-    vim.bo.shiftwidth = 2
-    vim.bo.tabstop = 2
-    vim.bo.softtabstop = 2
-  end,
-})
+-- vim.api.nvim_create_autocmd('FileType', {
+--   pattern = 'cs',
+--   group = vim.api.nvim_create_augroup('CustomCSharpFormat', { clear = true }),
+--   callback = function()
+--     vim.bo.expandtab = true
+--     vim.bo.shiftwidth = 4
+--     vim.bo.tabstop = 4
+--     vim.bo.softtabstop = 4
+--   end,
+-- })
+--
+-- vim.api.nvim_create_autocmd('FileType', {
+--   pattern = 'kotlin',
+--   group = vim.api.nvim_create_augroup('CustomKotlinFormat', { clear = true }),
+--   callback = function()
+--     vim.bo.expandtab = true
+--     vim.bo.shiftwidth = 2
+--     vim.bo.tabstop = 2
+--     vim.bo.softtabstop = 2
+--   end,
+-- })
 
 vim.api.nvim_create_autocmd('FileType', {
   pattern = 'rust',
